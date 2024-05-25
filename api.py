@@ -34,6 +34,23 @@ def get_branches():
         return make_response(jsonify(data), 200)
     finally:
         connection.close()
+        
+@app.route("/branches/<int:branch_id>", methods=["GET"])
+def get_branch_by_id(branch_id):
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM branches WHERE branch_id = %s"
+            cursor.execute(query, (branch_id,))
+            data = cursor.fetchone()
+
+        if data:
+            return make_response(jsonify(data), 200)
+        else:
+            return make_response(jsonify({"error": "branch not found"}), 404)
+    finally:
+        connection.close()
 
 
 if __name__ == "__main__":
