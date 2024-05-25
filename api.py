@@ -17,6 +17,24 @@ def get_connection():
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
     )
+@app.route("/")
+def hello_world():
+    return "<p> HELLO WORLD!</p>"
+
+@app.route("/branches", methods=["GET"])
+def get_branches():
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            query = "SELECT * FROM branches"
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+        return make_response(jsonify(data), 200)
+    finally:
+        connection.close()
+
 
 if __name__ == "__main__":
     app.run(debug=True)
