@@ -51,7 +51,7 @@ def get_branch_by_id(branch_id):
             return make_response(jsonify({"error": "branch not found"}), 404)
     finally:
         connection.close()
-        
+
 @app.route("/branches", methods=["POST"])
 def add_branch():
     connection = get_connection()
@@ -74,6 +74,26 @@ def add_branch():
         201,
     )
 
+@app.route("/branches/<int:id>", methods=["PUT"])
+def update_branch(id):
+    connection = get_connection()
+    cur = connection.cursor()
+    info = request.get_json()
+    branch_name = info["branch_name"]
+    location = info["location"]
+    cur.execute(
+        """ UPDATE branches SET branch_name = %s, location= %s WHERE branch_id = %s """,
+        (branch_name, location, id),
+    )
+    connection.commit()
+    rows_affected = cur.rowcount
+    cur.close()
+    return make_response(
+        jsonify(
+            {"message": "branch updated successfully", "rows_affected": rows_affected}
+        ),
+        200,
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
