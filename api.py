@@ -1,5 +1,4 @@
 from flask import Flask, make_response, jsonify, request
-
 import pymysql
 
 app = Flask(__name__)
@@ -17,6 +16,7 @@ def get_connection():
         charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor,
     )
+
 @app.route("/")
 def hello_world():
     return "<p> HELLO WORLD!</p>"
@@ -94,6 +94,7 @@ def update_branch(id):
         ),
         200,
     )
+
 @app.route("/branches/<int:id>", methods=["DELETE"])
 def delete_branch(id):
     connection = get_connection()
