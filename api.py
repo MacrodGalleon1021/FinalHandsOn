@@ -34,7 +34,7 @@ def get_branches():
         return make_response(jsonify(data), 200)
     finally:
         connection.close()
-        
+
 @app.route("/branches/<int:branch_id>", methods=["GET"])
 def get_branch_by_id(branch_id):
     connection = get_connection()
@@ -51,6 +51,28 @@ def get_branch_by_id(branch_id):
             return make_response(jsonify({"error": "branch not found"}), 404)
     finally:
         connection.close()
+        
+@app.route("/branches", methods=["POST"])
+def add_branch():
+    connection = get_connection()
+    cur = connection.cursor()
+    info = request.get_json()
+    branch_name = info["branch_name"]
+    location = info["location"]
+    cur.execute(
+        """ INSERT INTO branches (branch_name, location) VALUE (%s, %s)""",
+        (branch_name, location),
+    )
+    connection.commit()
+    print("row(s) affected :{}".format(cur.rowcount))
+    rows_affected = cur.rowcount
+    cur.close()
+    return make_response(
+        jsonify(
+            {"message": "branch added successfully", "rows_affected": rows_affected}
+        ),
+        201,
+    )
 
 
 if __name__ == "__main__":
