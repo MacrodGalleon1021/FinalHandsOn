@@ -1,7 +1,9 @@
 from flask import Flask, make_response, jsonify, request
+from flask_httpauth import HTTPBasicAuth
 import pymysql
 
 app = Flask(__name__)
+auth = HTTPBasicAuth()
 
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "macrod"
@@ -17,11 +19,21 @@ def get_connection():
         cursorclass=pymysql.cursors.DictCursor,
     )
 
+@auth.get_password
+def get_pw(username):
+    # In a real-world scenario, you would fetch the password from a database
+    # or an external authentication service.
+    if username == 'user':
+        return 'password'
+    return None
+
 @app.route("/")
+@auth.login_required
 def hello_world():
     return "<p> HELLO WORLD!</p>"
 
 @app.route("/branches", methods=["GET"])
+@auth.login_required
 def get_branches():
     connection = get_connection()
 
@@ -36,6 +48,7 @@ def get_branches():
         connection.close()
 
 @app.route("/branches/<int:branch_id>", methods=["GET"])
+@auth.login_required
 def get_branch_by_id(branch_id):
     connection = get_connection()
 
